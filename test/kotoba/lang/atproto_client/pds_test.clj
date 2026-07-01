@@ -10,7 +10,8 @@
             [cheshire.core :as json]
             [babashka.http-client :as http]
             [kotoba.lang.atproto-client.atproto :as atproto]
-            [kotoba.lang.atproto-client.pds :as pds])
+            [kotoba.lang.atproto-client.pds :as pds]
+            [kotoba.lang.atproto-client.http-jdk :as http-jdk])
   (:import [com.sun.net.httpserver HttpServer HttpHandler HttpExchange]
            [java.net InetSocketAddress]
            [java.io ByteArrayOutputStream]))
@@ -232,6 +233,35 @@
 (deftest health-true-test (is (true? (pds/health *http* *base-url*))))
 (deftest health-false-on-unreachable-test (is (false? (pds/health *http* "http://127.0.0.1:1"))))
 
+;; ─── src/kotoba/lang/atproto_client/http_jdk.clj (the reference `IHttp`
+;;     backed by the JDK's built-in java.net.http, zero extra deps) ───────
+;;
+;; Every other test in this file uses the babashka.http-client-backed
+;; `*http*` fixture; these prove the SECOND, src/-shipped reference
+;; adapter drives the same pure core end-to-end against the same real mock
+;; server -- both XRPC calls (via atproto/xrpc) and the separate
+;; did:web/did.json fetch (via pds/resolve-pds's private fetch-json).
+
+(deftest jdk-http-xrpc-get-test
+  (let [http (http-jdk/jdk-http)
+        agent (atproto/create-agent {:service *base-url* :http http})]
+    (is (true? (:ok (atproto/xrpc agent :get "_health"))))))
+
+(deftest jdk-http-xrpc-post-and-login-test
+  (let [http (http-jdk/jdk-http)]
+    (testing "POST + JSON body round-trip via the jdk-http adapter"
+      (let [res (atproto/xrpc (atproto/create-agent {:service *base-url* :http http})
+                              :post "com.atproto.repo.createRecord"
+                              {:repo "did:web:jdk.test" :collection "com.example.post"
+                               :record {:$type "com.example.post" :text "via jdk-http"}})]
+        (is (= fake-cid (:cid res)))
+        (is (str/starts-with? (:uri res) "at://did:web:jdk.test/com.example.post/"))))
+    (testing "the higher-level pds/login helper also works through jdk-http"
+      (let [session (pds/login {:http http :service *base-url*
+                                :identifier default-handle :password "correct-horse"})]
+        (is (= default-did (:did session)))
+        (is (str/starts-with? (:accessJwt session) "fake-access-"))))))
+
 ;; ─── pds: resolve-pds (did:web) ─────────────────────────────────────────
 ;; resolve-pds hardcodes https://; the mock serves plain HTTP, so we exercise
 ;; resolve-pds's real orchestration by stubbing pds/fetch-json (private) via
@@ -260,3 +290,10 @@
 
 (deftest resolve-pds-unsupported-method-test
   (is (thrown-with-msg? clojure.lang.ExceptionInfo #"did method not yet supported" (pds/resolve-pds *http* "did:plc:abc123"))))
+
+(deftest jdk-http-resolve-pds-test
+  (testing "resolve-pds's did.json fetch also works via the jdk-http reference adapter"
+    (with-stubbed-fetch-json
+      (fn [orig] (fn [http url] (let [path (str/replace url #"^https://[^/]+" "")]
+                                  (orig http (str *base-url* path)))))
+      #(is (= "https://real-pds.etzhayyim.test" (pds/resolve-pds (http-jdk/jdk-http) default-did))))))
