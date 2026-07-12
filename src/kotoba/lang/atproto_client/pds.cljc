@@ -16,7 +16,7 @@
 
 (def default-pds
   "Default PDS service endpoint, matching pds.ts's DEFAULT_PDS."
-  "https://pds.etzhayyim.com")
+  "https://pds.aozora.app")
 
 ;; ─── Session ──────────────────────────────────────────────────────────────
 

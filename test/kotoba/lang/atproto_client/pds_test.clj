@@ -134,9 +134,9 @@
 ;; ─── atproto: create-agent + xrpc ───────────────────────────────────────
 
 (deftest create-agent-test
-  (let [agent (atproto/create-agent {:service "https://pds.etzhayyim.com" :http *http*
+  (let [agent (atproto/create-agent {:service "https://pds.aozora.app" :http *http*
                                      :headers {"atproto-proxy" "did:web:yoro.etzhayyim.com#appview"}})]
-    (is (= "https://pds.etzhayyim.com" (:service agent)))
+    (is (= "https://pds.aozora.app" (:service agent)))
     (is (identical? *http* (:http agent)))
     (is (= "did:web:yoro.etzhayyim.com#appview" (get (:headers agent) "atproto-proxy")))))
 
