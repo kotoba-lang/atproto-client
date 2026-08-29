@@ -12,13 +12,13 @@
   calls thread a :session {:accessJwt ...} so xrpc can set the Bearer header.
 
   JVM synchronous (returns plain values); CLJS async (js/Promise, matching
-  the original TS). JSON: clojure.data.json (JVM) / js/JSON (CLJS), keywordized
+  the original TS). JSON: json.data-json (JVM) / js/JSON (CLJS), keywordized
   keys to match the wire shapes callers inspect.
 
   Kotoba-lang layer contract: pure .cljc, zero network I/O, zero vendor SDK
   (ADR-2606302300 §Step-1). The host backs IHttp with java.net /
   babashka.http-client (JVM) or fetch (CLJS/WASM)."
-  (:require #?(:clj [clojure.data.json :as json])
+  (:require #?(:clj [json.data-json :as json])
             [clojure.string :as str]))
 
 ;; ─── Capability seam ─────────────────────────────────────────────────────

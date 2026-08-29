@@ -12,7 +12,7 @@
   is not reimplemented; callers re-login/re-get-agent on auth failure."
   (:require [kotoba.lang.atproto-client.atproto :as atproto]
             [clojure.string :as str]
-            #?(:clj [clojure.data.json :as json])))
+            #?(:clj [json.data-json :as json])))
 
 (def default-pds
   "Default PDS service endpoint, matching pds.ts's DEFAULT_PDS."
