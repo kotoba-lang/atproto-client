@@ -11,7 +11,7 @@
   Scoped out (see README): AtpAgent's automatic 401 -> refreshSession retry
   is not reimplemented; callers re-login/re-get-agent on auth failure."
   (:require [kotoba.lang.atproto-client.atproto :as atproto]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             #?(:clj [json.data-json :as json])))
 
 (def default-pds

@@ -19,7 +19,7 @@
   (ADR-2606302300 §Step-1). The host backs IHttp with java.net /
   babashka.http-client (JVM) or fetch (CLJS/WASM)."
   (:require #?(:clj [json.data-json :as json])
-            [clojure.string :as str]))
+            [kotoba.lang.text :as str]))
 
 ;; ─── Capability seam ─────────────────────────────────────────────────────
 
@@ -39,7 +39,7 @@
   [method]
   (cond
     (keyword? method) method
-    (string? method) (keyword (str/lower-case method))
+    (string? method) (keyword (str/lower method))
     :else (throw (ex-info (str "[kotoba.lang.atproto-client] invalid xrpc method: " (pr-str method))
                           {:method method}))))
 
