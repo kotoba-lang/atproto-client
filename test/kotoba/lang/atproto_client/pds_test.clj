@@ -6,7 +6,7 @@
   XRPC wire shape (URLs, headers, JSON bodies, response parsing, error paths)
   is covered end-to-end while the library itself still does zero direct I/O."
   (:require [clojure.test :refer [deftest is testing use-fixtures]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [cheshire.core :as json]
             [babashka.http-client :as http]
             [kotoba.lang.atproto-client.atproto :as atproto]
