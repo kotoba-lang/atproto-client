@@ -8,7 +8,7 @@
   HTTP client) into the core library's dependency footprint. That keeps
   `IHttp` from being 'just an abstract protocol with no usable
   implementation anywhere in the repo' -- this namespace, plus the
-  `jdk-http`-driven tests in `test/kotoba/lang/atproto_client/pds_test.clj`,
+  `jdk-http`-driven tests in `test/kotoba/lang/atproto_client/pds_test.cljk`,
   are a real, working consumer. (This repo's test suite separately also
   proves the design against a second, real backend --
   `babashka.http-client`, wired in as a `:test`-alias-only dep -- see the

@@ -57,7 +57,7 @@ dependency footprint. `(jdk-http)` / `(jdk-http {:client my-client
 :timeout-ms 5000})`. This repo's test suite additionally proves the design
 against a *second*, independently-written `IHttp` backed by
 `babashka.http-client` (a `:test`-alias-only dep — see
-`test/kotoba/lang/atproto_client/pds_test.clj`'s `babashka-http`), so both
+`test/kotoba/lang/atproto_client/pds_test.cljk`'s `babashka-http`), so both
 the pure logic and two different real transports are exercised end-to-end
 against the same mock PDS server. Neither is the *only* option: any host
 already depending on a different JVM HTTP client, or (CLJS) browser `fetch`,
