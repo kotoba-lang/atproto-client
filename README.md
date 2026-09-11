@@ -82,8 +82,8 @@ core is the single canonical implementation.
 ## Develop
 
 ```bash
-clojure -M:lint     # clj-kondo (errors fail)
-clojure -M:test     # mock-PDS (JDK HttpServer), exercised via two injected IHttp
+kbb -M:lint     # clj-kondo (errors fail)
+kbb -M:test     # mock-PDS (JDK HttpServer), exercised via two injected IHttp
                     # impls: babashka.http-client (test-only dep) and this
                     # repo's own zero-dep reference adapter, http-jdk/jdk-http
 ```
