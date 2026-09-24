@@ -5,7 +5,7 @@
   backed by babashka.http-client pointed at the in-process mock, so the full
   XRPC wire shape (URLs, headers, JSON bodies, response parsing, error paths)
   is covered end-to-end while the library itself still does zero direct I/O."
-  (:require [kotoba.test :refer [deftest is testing use-fixtures]]
+  (:require [kotoba.http.form-urlencoded :as form-urlencoded] [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing use-fixtures]]
             [kotoba.lang.text :as str]
             [cheshire.core :as json]
             [babashka.http-client :as http]
@@ -34,19 +34,19 @@
   (let [out (ByteArrayOutputStream.)] (.transferTo is out) (.toByteArray out)))
 
 (defn- json-response! [^HttpExchange exchange status data]
-  (let [bytes (.getBytes (json/generate-string data) "UTF-8")]
+  (let [bytes (kbytes/utf8-bytes (json/generate-string data))]
     (.sendResponseHeaders exchange status (count bytes))
     (with-open [os (.getResponseBody exchange)] (.write os bytes))))
 
 (defn- read-body [^HttpExchange exchange]
-  (let [raw (String. (slurp-bytes (.getRequestBody exchange)) "UTF-8")]
+  (let [raw (kbytes/utf8-string (slurp-bytes (.getRequestBody exchange)))]
     (when (seq raw) (try (json/parse-string raw true) (catch Exception _ nil)))))
 
 (defn- query-params [^HttpExchange exchange]
   (let [q (.getQuery (.getRequestURI exchange))]
     (if (str/blank? q) {}
         (into {} (map (fn [pair] (let [[k v] (str/split pair #"=" 2)]
-                                   [k (java.net.URLDecoder/decode v "UTF-8")]))
+                                   [k (form-urlencoded/form-decode v)]))
                       (str/split q #"&"))))))
 
 (defn- auth-bearer [^HttpExchange exchange]
