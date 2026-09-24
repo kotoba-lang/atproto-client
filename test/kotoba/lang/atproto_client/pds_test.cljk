@@ -5,7 +5,7 @@
   backed by babashka.http-client pointed at the in-process mock, so the full
   XRPC wire shape (URLs, headers, JSON bodies, response parsing, error paths)
   is covered end-to-end while the library itself still does zero direct I/O."
-  (:require [clojure.test :refer [deftest is testing use-fixtures]]
+  (:require [kotoba.test :refer [deftest is testing use-fixtures]]
             [kotoba.lang.text :as str]
             [cheshire.core :as json]
             [babashka.http-client :as http]
