@@ -18,7 +18,7 @@
   Kotoba-lang layer contract: pure .cljc, zero network I/O, zero vendor SDK
   (ADR-2606302300 §Step-1). The host backs IHttp with java.net /
   babashka.http-client (JVM) or fetch (CLJS/WASM)."
-  (:require #?(:clj [json.data-json :as json])
+  (:require [kotoba.http.form-urlencoded :as form-urlencoded] #?(:clj [json.data-json :as json])
             [kotoba.lang.text :as str]))
 
 ;; ─── Capability seam ─────────────────────────────────────────────────────
@@ -46,7 +46,7 @@
 (defn- qs-encode [v] (cond (keyword? v) (name v) :else (str v)))
 
 (defn- url-encode-component [s]
-  #?(:clj (java.net.URLEncoder/encode ^String s "UTF-8")
+  #?(:clj (form-urlencoded/form-encode ^String s)
      :cljs (js/encodeURIComponent s)))
 
 (defn- query-string [params]
