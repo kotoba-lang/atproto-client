@@ -5,7 +5,7 @@
   backed by babashka.http-client pointed at the in-process mock, so the full
   XRPC wire shape (URLs, headers, JSON bodies, response parsing, error paths)
   is covered end-to-end while the library itself still does zero direct I/O."
-  (:require [kotoba.http.form-urlencoded :as form-urlencoded] [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing use-fixtures]]
+  (:require [kotoba.lang.error :as kerror] [kotoba.http.form-urlencoded :as form-urlencoded] [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing use-fixtures]]
             [kotoba.lang.text :as str]
             [cheshire.core :as json]
             [babashka.http-client :as http]
@@ -141,7 +141,7 @@
     (is (= "did:web:yoro.etzhayyim.com#appview" (get (:headers agent) "atproto-proxy")))))
 
 (deftest create-agent-requires-http-test
-  (is (thrown-with-msg? clojure.lang.ExceptionInfo #"requires :http"
+  (is (thrown-with-msg? kerror/ExceptionInfo #"requires :http"
                         (atproto/create-agent {:service "https://x"}))))
 
 (deftest xrpc-get-test
@@ -165,7 +165,7 @@
   (is (true? (:ok (atproto/xrpc (agent-with-defaults) "GET" "_health")))))
 
 (deftest xrpc-throws-on-non-2xx-test
-  (is (thrown-with-msg? clojure.lang.ExceptionInfo #"createRecord failed: 400"
+  (is (thrown-with-msg? kerror/ExceptionInfo #"createRecord failed: 400"
                         (atproto/xrpc (agent-with-defaults) :post "com.atproto.repo.createRecord" {}))))
 
 ;; ─── pds: session ───────────────────────────────────────────────────────
@@ -177,7 +177,7 @@
     (is (str/starts-with? (:refreshJwt session) "fake-refresh-"))))
 
 (deftest login-failure-test
-  (is (thrown-with-msg? clojure.lang.ExceptionInfo #"createSession failed: 401"
+  (is (thrown-with-msg? kerror/ExceptionInfo #"createSession failed: 401"
                         (pds/login {:http *http* :service *base-url* :identifier "x" :password "wrong"}))))
 
 (deftest create-account-test
@@ -280,16 +280,16 @@
 (deftest resolve-pds-no-service-entry-test
   (with-stubbed-fetch-json
     (fn [_orig] (fn [_http _url] {:ok true :status 200 :body {:id default-did :service []}}))
-    #(is (thrown-with-msg? clojure.lang.ExceptionInfo #"no AtprotoPersonalDataServer service entry"
+    #(is (thrown-with-msg? kerror/ExceptionInfo #"no AtprotoPersonalDataServer service entry"
                            (pds/resolve-pds *http* default-did)))))
 
 (deftest resolve-pds-unreachable-test
   (with-stubbed-fetch-json
     (fn [_orig] (fn [_http _url] {:ok false :status 404 :body nil}))
-    #(is (thrown-with-msg? clojure.lang.ExceptionInfo #"did\.json not reachable" (pds/resolve-pds *http* default-did)))))
+    #(is (thrown-with-msg? kerror/ExceptionInfo #"did\.json not reachable" (pds/resolve-pds *http* default-did)))))
 
 (deftest resolve-pds-unsupported-method-test
-  (is (thrown-with-msg? clojure.lang.ExceptionInfo #"did method not yet supported" (pds/resolve-pds *http* "did:plc:abc123"))))
+  (is (thrown-with-msg? kerror/ExceptionInfo #"did method not yet supported" (pds/resolve-pds *http* "did:plc:abc123"))))
 
 (deftest jdk-http-resolve-pds-test
   (testing "resolve-pds's did.json fetch also works via the jdk-http reference adapter"
